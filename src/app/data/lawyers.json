@@ -1,0 +1,51 @@
+{
+  "featured": [
+    {
+      "_id": "f1",
+      "fullName": "Barrister Rafiqul Islam",
+      "specialization": "Criminal Law",
+      "profilePicture": "https://images.unsplash.com/photo-1560250097-0b93528c311a",
+      "experience": "12 Years",
+      "totalHires": 45
+    },
+    {
+      "_id": "f2",
+      "fullName": "Advocate Sumaiya Rahman",
+      "specialization": "Family Law",
+      "profilePicture": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2",
+      "experience": "8 Years",
+      "totalHires": 32
+    },
+    {
+      "_id": "f3",
+      "fullName": "Zayan Ahmed",
+      "specialization": "Corporate Law",
+      "profilePicture": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7",
+      "experience": "5 Years",
+      "totalHires": 20
+    }
+  ],
+  "top": [
+    {
+      "_id": "t1",
+      "fullName": "Dr. Asif Nazrul",
+      "specialization": "Constitutional Law",
+      "profilePicture": "https://images.unsplash.com/photo-1556157382-97eda2d62296",
+      "totalHires": 120
+    },
+    {
+      "_id": "t2",
+      "fullName": "Advocate Rokeya Begum",
+      "specialization": "Tax Law",
+      "profilePicture": "https://images.unsplash.com/photo-1580894732444-8fecef2271ff",
+      "totalHires": 98
+    },
+    {
+      "_id": "t3",
+      "fullName": "Barrister Imtiaz Uddin",
+      "specialization": "IP Law",
+      "profilePicture": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e",
+      "totalHires": 85
+    }
+  ]
+}
