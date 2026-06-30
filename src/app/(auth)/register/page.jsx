@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 import { api } from '@/app/lib/api';
 
@@ -54,33 +55,20 @@ export default function Register() {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleSignUp = async () => {
     try {
-      // Google OAuth popup
-      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-      if (!clientId) {
-        setError('Google configuration missing');
-        return;
-      }
-
-      // Simple Google login simulation
-      // Production এ proper OAuth flow করতে হবে
-      const email = prompt('Enter Google email:');
-      const fullName = prompt('Enter your full name:');
-      
-      if (!email || !fullName) return;
-
-      const response = await api.post('/auth/google-login', {
-        email,
-        fullName,
-        profilePicture: 'https://via.placeholder.com/150'
+      const result = await signIn('google', { 
+        redirect: false,
+        callbackUrl: '/'
       });
-
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      router.push('/');
+      
+      if (result?.ok) {
+        router.push('/');
+      } else {
+        setError('Google sign-up failed');
+      }
     } catch (err) {
-      setError('Google login failed');
+      setError('Google sign-up error');
     }
   };
 
@@ -168,7 +156,7 @@ export default function Register() {
           </button>
         </form>
 
-        {/* Google Login Button */}
+        {/* Google Sign In */}
         <div className="relative mb-6">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-300"></div>
@@ -180,7 +168,7 @@ export default function Register() {
 
         <button
           type="button"
-          onClick={handleGoogleLogin}
+          onClick={handleGoogleSignUp}
           className="w-full bg-white border border-gray-300 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-50 transition flex items-center justify-center gap-2"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">

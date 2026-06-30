@@ -1,51 +1,51 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from "react";
 
 export function useAuth() {
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // ব্রাউজারে localStorage থেকে টোকেন বা ইউজার ডেটা চেক করার জন্য
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    const savedUser = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+    const savedToken = localStorage.getItem("token");
+    const savedUser = localStorage.getItem("user");
 
-    if (token && savedUser) {
+    if (savedToken && savedUser) {
       try {
         // eslint-disable-next-line react-hooks/set-state-in-effect
+        setToken(savedToken);
         setUser(JSON.parse(savedUser));
-      } catch (e) {
-        console.error("Error parsing user data from localStorage", e);
+      } catch (err) {
+        console.log(err);
       }
     }
+
     setLoading(false);
   }, []);
 
-  // লগইন ফাংশন
-  const login = (userData, token) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
-    }
+  const login = (userData, jwt) => {
+    localStorage.setItem("token", jwt);
+    localStorage.setItem("user", JSON.stringify(userData));
+
     setUser(userData);
+    setToken(jwt);
   };
 
-  // লগআউট ফাংশন
   const logout = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-    }
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
     setUser(null);
+    setToken(null);
   };
 
-  // Navbar বা অন্যান্য ফাইলে যা যা প্রয়োজন, তা রিটার্ন করা হচ্ছে
   return {
     user,
+    token,
     loading,
     login,
     logout,
-    isAuthenticated: !!user
+    isAuthenticated: !!user,
   };
 }
