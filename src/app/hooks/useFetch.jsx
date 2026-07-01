@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react';
-import { api } from '@/lib/api';
+import { api } from '@/app/lib/api';
  
 export function useFetch(url, token = null) {
   const [data, setData] = useState(null);

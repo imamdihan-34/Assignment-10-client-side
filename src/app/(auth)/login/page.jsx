@@ -1,132 +1,104 @@
 'use client';
-
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { api } from '@/app/lib/api';
 
 export default function Login() {
-  const router = useRouter();
-
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
+    password: ''
   });
-
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    setLoading(true);
     setError('');
+    setLoading(true);
 
     try {
-      const res = await api.post('/auth/login', formData);
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
 
-      const { token, user } = res.data;
-
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-
-      // Role Wise Redirect
-      if (user.role === 'admin') {
-        router.push('/dashboard/user/admin');
-      } else if (user.role === 'lawyer') {
-        router.push('/dashboard/user/lawyer');
-      } else {
-        router.push('/dashboard');
+      if (!response.ok) {
+        throw new Error('Login failed');
       }
+
+      const data = await response.json();
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      router.push('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login Failed');
+      setError(err.message || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8"
-      >
-        <h2 className="text-3xl font-bold text-center mb-2">
-          Welcome Back
-        </h2>
-
-        <p className="text-center text-gray-500 mb-8">
-          Login to your LegalEase account
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-50 to-blue-100">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Login</h1>
 
         {error && (
-          <div className="bg-red-100 text-red-700 rounded-lg p-3 mb-5">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="font-semibold block mb-2">
-              Email
-            </label>
-
+            <label className="block text-gray-700 font-semibold mb-2">EMAIL</label>
             <input
               type="email"
               name="email"
-              required
               value={formData.email}
               onChange={handleChange}
-              placeholder="Enter Email"
-              className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             />
           </div>
 
           <div>
-            <label className="font-semibold block mb-2">
-              Password
-            </label>
-
+            <label className="block text-gray-700 font-semibold mb-2">PASSWORD</label>
             <input
               type="password"
               name="password"
-              required
               value={formData.password}
               onChange={handleChange}
-              placeholder="Enter Password"
-              className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             />
           </div>
 
           <button
+            type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold"
+            className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50"
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>
-
         </form>
 
-        <div className="text-center mt-6">
-          Do not have an account?{' '}
-          <Link
-            href="/register"
-            className="text-blue-600 font-semibold"
-          >
+        <p className="text-center text-gray-600 mt-6">
+          No account?{' '}
+          <Link href="/register" className="text-blue-600 font-semibold">
             Register
           </Link>
-        </div>
-      </motion.div>
+        </p>
+      </div>
     </div>
   );
 }

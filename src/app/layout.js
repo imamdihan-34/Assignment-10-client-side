@@ -1,18 +1,19 @@
-'use client';
-import { SessionProvider } from "next-auth/react";
 import Navbar from "@/app/components/Navbar";
 import Footer from "@/app/components/Footer";
 import "@/app/globals.css";
+
+export const metadata = {
+  title: "LegalEase",
+  description: "Find and hire legal professionals",
+};
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <SessionProvider>
-          <Navbar />
-          {children}
-          <Footer />
-        </SessionProvider>
+        <Navbar />
+        {children}
+        <Footer />
       </body>
     </html>
   );
