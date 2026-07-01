@@ -15,8 +15,7 @@ export default function Home() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const apiUrl = 'http://localhost:5000/api';
-
+        const apiUrl = fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/lawyer/all`)
         const [featuredRes, topRes] = await Promise.all([
           fetch(`${apiUrl}/lawyer/featured`),
           fetch(`${apiUrl}/lawyer/top`)
