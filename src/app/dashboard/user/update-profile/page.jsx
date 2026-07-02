@@ -1,74 +1,51 @@
-
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import DashboardSidebar from '@/app/components/DashboardSidebar';
-import LoadingSpinner from '@/app/components/LoadingSpinner';
-import { api } from '@/app/lib/api';
-import { useAuth } from '@/app/hooks/useAuth';
- 
+
 export default function UpdateProfile() {
-  const { user, token } = useAuth();
+  const router = useRouter();
+  const [user, setUser] = useState(null);
   const [formData, setFormData] = useState({
     fullName: '',
-    profilePicture: ''
+    email: '',
+    phone: '',
+    bio: ''
   });
-  const [imageFile, setImageFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
- 
+
   useEffect(() => {
-    if (user) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFormData({
-        fullName: user.fullName,
-        profilePicture: user.profilePicture || ''
-      });
+    const userData = localStorage.getItem('user');
+    if (!userData) {
+      router.push('/login');
+      return;
     }
-  }, [user]);
- 
-  const handleImageUpload = async (file) => {
-    const formDataImg = new FormData();
-    formDataImg.append('image', file);
- 
-    try {
-      const response = await fetch(`https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`, {
-        method: 'POST',
-        body: formDataImg
-      });
-      const data = await response.json();
-      return data.data.url;
-    } catch (error) {
-      console.error('Image upload failed:', error);
-      return null;
-    }
+    const parsedUser = JSON.parse(userData);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setUser(parsedUser);
+    setFormData({
+      fullName: parsedUser.fullName || '',
+      email: parsedUser.email || '',
+      phone: parsedUser.phone || '',
+      bio: parsedUser.bio || ''
+    });
+  }, [router]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
- 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
- 
-    let profilePictureUrl = formData.profilePicture;
- 
-    if (imageFile) {
-      profilePictureUrl = await handleImageUpload(imageFile);
-      if (!profilePictureUrl) {
-        alert('Failed to upload image');
-        setLoading(false);
-        return;
-      }
-    }
- 
+
     try {
-      await api.put(
-        '/user/update-profile',
-        {
-          fullName: formData.fullName,
-          profilePicture: profilePictureUrl
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      alert('Profile updated successfully');
+      const updatedUser = { ...user, ...formData };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      alert('Profile updated successfully!');
       router.push('/dashboard');
     } catch (error) {
       alert('Failed to update profile');
@@ -76,44 +53,68 @@ export default function UpdateProfile() {
       setLoading(false);
     }
   };
- 
+
+  if (!user) return <div>Loading...</div>;
+
   return (
-    <div className="flex">
-      <DashboardSidebar />
-      <div className="flex-1 p-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">Update Profile</h1>
- 
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-2xl">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-2xl mx-auto px-4 py-12">
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          <h1 className="text-3xl font-bold mb-8">Update Profile</h1>
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-gray-700 font-semibold mb-2">Full Name</label>
               <input
                 type="text"
+                name="fullName"
                 value={formData.fullName}
-                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
               />
             </div>
- 
+
             <div>
-              <label className="block text-gray-700 font-semibold mb-2">Profile Picture</label>
-              {formData.profilePicture && (
-                <img src={formData.profilePicture} alt="Profile" className="w-24 h-24 rounded-lg mb-4 object-cover" />
-              )}
+              <label className="block text-gray-700 font-semibold mb-2">Email</label>
               <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => setImageFile(e.target.files?.[0])}
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Phone</label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
- 
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Bio</label>
+              <textarea
+                name="bio"
+                value={formData.bio}
+                onChange={handleChange}
+                rows="4"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
             <button
               type="submit"
               disabled={loading}
               className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50"
             >
-              {loading ? 'Updating...' : 'Update Profile'}
+              {loading ? 'Saving...' : 'Save Changes'}
             </button>
           </form>
         </div>
