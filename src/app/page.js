@@ -17,8 +17,8 @@ export default function Home() {
       try {
         const apiUrl = fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/lawyer/all`)
         const [featuredRes, topRes] = await Promise.all([
-          fetch(`${apiUrl}/lawyer/featured`),
-          fetch(`${apiUrl}/lawyer/top`)
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/lawyer/featured`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/lawyer/top`)
         ]);
 
         if (featuredRes.ok) {
